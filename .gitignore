@@ -4,6 +4,8 @@ docs/_site
 **/__pycache__
 **/filters*.html
 **/tiles*.html
+*.ipynb
+.ipynb_checkpoints
 
 # IDE + OS
 .DS_Store

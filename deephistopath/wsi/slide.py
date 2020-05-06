@@ -48,11 +48,17 @@ class Slide(object):
     HERE-> expand the docstring
     """
 
-    def __init__(self, wsi_path, scale_factor=32):
+    def __init__(self, wsi_path, processed_path, scale_factor=32):
         self._wsi_path = wsi_path
+        self._processed_path = processed_path
         self._scale_factor = scale_factor
+        os.makedirs(processed_path, exist_ok=True)
 
     # ---public interface methods and properties---
+
+    @property
+    def resampled_array(self):
+        return self._resample[1]
 
     def save_scaled_image(self):
         """Save a scaled image in the correct path"""
@@ -80,7 +86,7 @@ class Slide(object):
         -------
         img_path : str
         """
-        img_path = self._breadcumb(os.path.join(self._wsi_path, "processed"))
+        img_path = self._breadcumb(self._processed_path)
         return img_path
 
     @property
@@ -92,7 +98,7 @@ class Slide(object):
         thumb_path : str
         """
         thumb_path = self._breadcumb(
-            os.path.join(self.scaled_image_path, f"thumbnails_{IMG_EXT}")
+            os.path.join(self._processed_path, f"thumbnails_{IMG_EXT}")
         )
         return thumb_path
 
@@ -202,11 +208,13 @@ class Slide(object):
 
 
 class SlideSet(object):
-    def __init__(self, slides_path, valid_wsi_extensions):
+    def __init__(self, slides_path, processed_path, valid_wsi_extensions):
         self._slides_path = slides_path
+        self._processed_path = processed_path
         self._valid_wsi_extensions = valid_wsi_extensions
+        os.makedirs(self._processed_path, exist_ok=True)
 
-    def save_rescaled_slides(self, n=None):
+    def save_rescaled_slides(self, n=0):
         """Save rescaled images
 
         Parameters
@@ -215,12 +223,12 @@ class SlideSet(object):
            first n slides in dataset folder to rescale and save
         """
         # TODO: add logger if n>total_slide and log saved images names
-        n = self.total_slides if (n > self.total_slides or n is None) else n
+        n = self.total_slides if (n > self.total_slides or n == 0) else n
 
         for slide in self.slides[:n]:
             slide.save_scaled_image()
 
-    def save_thumbnails(self, n=None):
+    def save_thumbnails(self, n=0):
         """Save thumbnails
 
         Parameters
@@ -229,7 +237,7 @@ class SlideSet(object):
             first n slides in dataset folder
         """
         # TODO: add logger n>total_slide and log thumbnails names
-        n = self.total_slides if (n > self.total_slides or n is None) else n
+        n = self.total_slides if (n > self.total_slides or n == 0) else n
 
         for slide in self.slides[:n]:
             slide.save_thumbnail()
@@ -237,7 +245,7 @@ class SlideSet(object):
     @property
     def slides(self):
         return [
-            Slide(os.path.join(self._slides_path, wsi_path))
+            Slide(os.path.join(self._slides_path, wsi_path), self._processed_path)
             for wsi_path in os.listdir(self._slides_path)
             if os.path.splitext(wsi_path)[1] in self._valid_wsi_extensions
         ]
@@ -338,24 +346,30 @@ class SlideSet(object):
 
     @property
     def _max_height_slide(self):
-        return max(self.slides_dimensions, key=lambda x: x["height"])
+        max_height = max(self.slides_dimensions, key=lambda x: x["height"])
+        return {"slide": max_height["wsi"], "height": max_height["height"]}
 
     @property
     def _max_size_slide(self):
-        return max(self.slides_dimensions, key=lambda x: x["size"])
+        max_size = max(self.slides_dimensions, key=lambda x: x["size"])
+        return {"slide": max_size["wsi"], "size": max_size["size"]}
 
     @property
     def _max_width_slide(self):
-        return max(self.slides_dimensions, key=lambda x: x["width"])
+        max_width = max(self.slides_dimensions, key=lambda x: x["width"])
+        return {"slide": max_width["wsi"], "width": max_width["width"]}
 
     @property
     def _min_width_slide(self):
-        return min(self.slides_dimensions, key=lambda x: x["width"])
+        min_width = min(self.slides_dimensions, key=lambda x: x["width"])
+        return {"slide": min_width["wsi"], "width": min_width["width"]}
 
     @property
     def _min_height_slide(self):
-        return min(self.slides_dimensions, key=lambda x: x["height"])
+        min_height = min(self.slides_dimensions, key=lambda x: x["height"])
+        return {"slide": min_height["wsi"], "height": min_height["height"]}
 
     @property
     def _min_size_slide(self):
-        return min(self.slides_dimensions, key=lambda x: x["size"])
+        min_size = min(self.slides_dimensions, key=lambda x: x["size"])
+        return {"slide": min_size["wsi"], "height": min_size["size"]}
