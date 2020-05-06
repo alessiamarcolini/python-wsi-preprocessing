@@ -1,0 +1,22 @@
+#################### NOTE #############################
+# setuptools pinned to 45 is mandatory for open-slide.
+# When they will fix the issue for the pip installation
+# remove `setuptools` from this file
+#######################################################
+setuptools==45
+appdirs==1.4.3
+attrs==19.3.0
+click==7.1.2
+cycler==0.10.0
+kiwisolver==1.2.0
+matplotlib==3.2.1
+numpy==1.18.4
+openslide-python==1.1.1
+pathspec==0.8.0
+Pillow==7.1.2
+pyparsing==2.4.7
+python-dateutil==2.8.1
+regex==2020.4.4
+six==1.14.0
+toml==0.10.0
+typed-ast==1.4.1
