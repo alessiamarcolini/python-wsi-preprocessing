@@ -48,7 +48,7 @@ class Slide(object):
     HERE-> expand the docstring
     """
 
-    def __init__(self, wsi_path, scale_factor=32):
+    def __init__(self, wsi_path: str, scale_factor: int = 32) -> None:
         self._wsi_path = wsi_path
         self._scale_factor = scale_factor
 
@@ -133,8 +133,7 @@ class Slide(object):
         """
         large_w, large_h, new_w, new_h = self._resampled_dimensions
         if {large_w, large_h, new_w, new_h} == {None}:
-            wildcard_path = os.path.join(directory_path, self.wsi_name + "*." + IMG_EXT)
-            final_path = glob.glob(wildcard_path)[0]
+            final_path = os.path.join(directory_path, f"{self.wsi_name}*.{IMG_EXT}")
         else:
             final_path = os.path.join(
                 directory_path,
